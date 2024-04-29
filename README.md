@@ -2,7 +2,11 @@
 
 # Lesson 6: Rails Basics
 
-We are going to create a Rails application from scratch, explaining all of the parts.  To begin, fork this repository.  Then clone your fork.  As usual, be sure not to clone into an existing git repository.  Then, cd to the directory where you cloned, and create a new branch called rails_basics.  This is where you will do your work. Then do:
+We are going to create a Rails application from scratch, explaining all of the parts.  We are not going to explain Rails at the start.  We're just going to plow in, creating the application, and explaining the meaning of each step.  When you start the Rails server, it runs the application, listening and responding to HTTP requests, which often originate from a browser.
+
+Because the lesson is organized in this way, there is no separate materials page.  All the information is presented in the course of the assignment.
+
+To begin, fork [this repository.](https://github.com/Code-the-Dream-School/R7-forum.git)  Then clone your fork.  As usual, be sure not to clone into an existing git repository.  Then, cd to the directory where you cloned, and create a new branch called rails_basics.  This is where you will do your work. Then do:
 ```
 bin/bundle install
 ```
@@ -14,7 +18,7 @@ Now, start the server as follows:
 ```
 bin/rails server
 ```
-You will see a message that the Rails server is listening on http://localhost:3000.  So open that URL in your browser.  You will see a basic Rails page.  Now, stop the server by typing Ctrl-C in your terminal.
+You will see a message that the Rails server is listening on http://localhost:3000.  So open that URL in your browser.  You will see a basic Rails page.  **If you do not see this page, you have not installed Rails correctly, so ask for help.**  Now, stop the server by typing Ctrl-C in your terminal.  
 
 ## Step 1: Generate a Basic Application Using Scaffolding
 
@@ -22,14 +26,14 @@ Enter the following in your terminal:
 ```
 bin/rails generate scaffold forum forum_name:string
 ```
-Have a look at the messages that come back.  Quite a few things are generated for you:
+Have a look at the messages that come back in your terminal.  Quite a few things are generated for you:
 
 - A migration.  This creates a table in the database for forum records.
 - A model. This is the Active Record class for the forum records.  Active Record is an object relational mapper, which converts operations on Active Record objects into SQL.
 - A route is added.
 - A controller is created.
 - Views are created.
-- And some other stuff as well, having to do with testing and the like -- you can ignore this.
+- And some other stuff as well, having to do with testing and the like -- you can ignore this for now.
 
 So, let's look at each.  
 
@@ -50,11 +54,11 @@ Now restart the server, and go to http://localhost:3000 again.  You get an error
 ```
 bin/rails db:migrate
 ```
-You'll see that a table is created.  You now have two more files db/schema.rb and db/development.sqlite3.  The schema file shows the state of tables in the database, and it is helpful to refer to it, but you should never edit it.  The sqlite3 file is not readable.  This is the database itself.  This file is in the .gitignore, so that it is never sent to github.
+You'll see that a table is created.  You now have two more files: db/schema.rb and db/development.sqlite3.  The schema file shows the state of tables in the database, and it is helpful to refer to it, but you should never edit it.  The sqlite3 file is not readable.  This is the database itself.  This file is in the .gitignore, so that it is never sent to github.
 
 Ok, now restart the server.  Go to http://localhost:3000/forums.  You'll see the list of forums, but of course, at this point, there aren't any.
 
-Take a look at the terminal where the server is running.  What you see there is the server log.  The log is useful to see what the server does in response to each request.  It is also persisted in log/development.log, and for production applications, it's important to review the log to see if there are errors in the application or possible misuse.  As we'll see, you can also put in code statements to write to the log.  The log is persisted in the log directory.  (The contents of that directory are not sent to github.)   
+Take a look at the terminal where the server is running.  What you see there is the server log.  The log is useful to see what the server does in response to each request.  It is also persisted in log/development.log (you are running, by default, in development mode), and for production applications, it's important to review the log to see if there are errors in the application or possible misuse.  As we'll see, you can also put in code statements to write to the log.  The contents of the log directory are not sent to github.  
 
 Anyway, back to what you see in the log: You see that a GET request came from your browser for the "/forums" path.  You see that the ForumsController index method was invoked to handle the request.  You see the views that were rendered, and the SQL operation that occurred in order to render the views.  So, we see all the parts of a Model-View-Controller (MVC) structured application.  Stop the server for the next steps.
 
@@ -67,7 +71,9 @@ We haven't created any forum entries yet, and there's something we need to fix f
 bin/rails generate migration AddDescriptionToForums description:string
 bin/rails db:migrate
 ```
-As we generated a new migration, we had to do the migrate.  If you check db/schema.rb, you see that the description column has been added to the forums table. We can now use the Rails console to add entries to the database without starting the server.  The Rails console is a very important tool.  You can do all the operations that you can do in the IRB environment, such as calling functions and displaying the value of variables, but you can also use Rails classes, including the Active Record Model classes that acces the database.  Enter the following:
+As we generated a new migration, we had to do the migrate.  If you check db/schema.rb, you see that the description column has been added to the forums table.
+
+We can now use the Rails console to add entries to the database without starting the server.  The Rails console is a very important tool.  You can do all the operations that you can do in the IRB environment, such as calling functions and displaying the value of variables, but you can also use Rails classes, including the Active Record Model classes that access the database.  Enter the following:
 ```
 bin/rails console
 forum = Forum.new
@@ -76,13 +82,17 @@ forum.description = "Ruby programming tips."
 forum.save
 Forum.all
 ```
-Please note when we capitalize.  Forum.new and Forum.all are class methods of the Forum model class.  We create an instance of this class called "forum" (lower case!), and then do some operations on that instance, including save, which is an instance method.  The save is what writes the entry to the database.  We then see that it is added to the list returned by Forum.all.  You could add more forum entries now if you like.
+Please note when we capitalize.  Forum.new and Forum.all are class methods of the Forum model class.  We create an instance of this class called "forum" (lower case!), and then do some operations on that instance, including save, which is an instance method.  The save is what writes the entry to the database.  We then see that it is added to the list returned by Forum.all.  You could add more forum entries now if you like.  Note also that the Rails console shows the SQL that it is executing.  When you do ```forum.save``` it does an SQL Insert. You are using the Active Record ORM (Object Relational Mapper) to do the SQL for you.
 
-Start the server, and go to http://localhost/3000/forums . You see the list of forums -- but no descriptions.  This is because the views were generated when the forums table did not have a description column.  We now need to fix those views.
+Start the server, and go to http://localhost/3000/forums . ITake a look at your server console after you do this.  You will see that the server has performed a SELECT statement on the forums table.
 
-Edit app/views/forums/index.html.erb.  Again, you see those ```<% %>``` brackets that indicate embedded Ruby.  Now, the first thing to understand about those sections is that no Ruby code is sent to the browser.  The browser can do nothing with Ruby.  The Ruby code is executed to generate plain HTML, which is what is sent to the browser.  If you go into developer tools in your browser, that's what you'll see.
+In your browser, you see the list of forums -- but no descriptions.  This is because the views were generated when the forums table did not have a description column.  We now need to fix those views.
 
-There are only two kinds of embedded Ruby blocks.  The ones that start ```<% ``` are executed, but do not result in anything added to the HTML.  These are for conditional statements and loops.  The blocks that start ```<%= ``` do generate output.  The result of the Ruby expression is inserted into the HTML. You can put all kinds of Ruby code into an erb file, but this is unwise.  You want to keep your logic in the controller or model, except for a minimum as needed to customize the view.  Note also the line that says
+Edit app/views/forums/index.html.erb.  Again, you see those ```<% %>``` brackets that indicate embedded Ruby.  Now, the first thing to understand about those sections is that no Ruby code is sent to the browser.  The browser can do nothing with Ruby.  The Ruby code is executed on the server side to generate plain HTML, which is what is sent to the browser.  If you go into developer tools in your browser, that's what you'll see, plain HTML.  An erb file is a template, with dynamic contents that are populated on the server side.  This is called "server side rendering".
+
+There are only two kinds of embedded Ruby blocks in an erb file.  The ones that start ```<% ``` are executed, but do not result in anything added to the HTML.  These are for conditional statements and loops.  The blocks that start ```<%= ``` do generate output.  The result of the Ruby expression is inserted into the HTML. You can put all kinds of Ruby code into an erb file, but this is unwise.  You want to keep your logic in the controller or model, except for a minimum as needed to customize the view.  
+
+Note the line that says
 ```
 <% @forums.each do |forum| %>
 ```
@@ -96,7 +106,7 @@ So, let's try modifying the index.html.erb line.  Right below the forums div, ad
   <% end %>
 </div>
 ```
-Here we use both kinds of embedded Ruby blocks.  What do you think it will display.  Refresh your browser page to find out.  There is no need to restart the server.
+Here we use both kinds of embedded Ruby blocks.  What do you think it will display?  Refresh your browser page to find out.  There is no need to restart the server.
 
 You can take that div back out, as it was just for experimentation.  We need to get back to adding the forum description.  You see the line that says
 ```
@@ -104,7 +114,7 @@ You can take that div back out, as it was just for experimentation.  We need to 
 ```
 This is loading a partial.  A view partial is a view component that is used in several views, in this case the index and show views.  The partial that is being rendered is app/views/forums/_forum.html.erb.  You only have to specify "forum", not the full name of the partial.  So edit that file.  There you see the problem.  There is a paragraph for the title, but nothing for the description.  So, duplicate the paragraph for the title. Then, in the duplicated part, change "Forum name" to "Forum description, and forum.forum_name to forum.description.  Save the file and refresh your browser. Now you see the descriptions.  But, if you click on "new forum" you only can enter the title.  You need to edit another partial.  You can see in the console of the Rails server that it is forums/_form.html.erb.  This partial is used by both edit and new.
 
-When you edit the partial, you see a form_with statement.  This is a helper method for use with erb files.  What it generates is a normal HTML form, with a few hidden fields to facilitate Rails processing.  On the next lines, you see some stuff that has to do with error reporting.  The section we are interested in is below that.  You need to duplicate the div that currently handles input for the forum_name.  Then change the new section as needed to handle the description.  There are several additional helper methods used: form.label and form.text_field.  You can find the Rails form helpers documented [here.](https://guides.rubyonrails.org/form_helpers.html)  Verify that when you click on "new forum" you get a correct form.  Check it out with your browser developer tools.
+When you edit the partial, you see a form_with statement.  This is a helper method for use with erb files.  What it generates is a normal HTML form, with a few hidden fields to facilitate Rails processing.  On the next lines, you see some stuff that has to do with error reporting.  The section we are interested in is below that.  You need to duplicate the div that currently handles input for the forum_name.  Then change the new section as needed to handle the description.  Experiment so that you can see how this is done.  There are several additional helper methods used: form.label and form.text_field.  You can find the Rails form helpers documented [here.](https://guides.rubyonrails.org/form_helpers.html)  Verify that when you click on "new forum" you get a correct form, with a description field.  Check it out with your browser developer tools.
 
 Now try to create a forum with a description.  You'll see that the forum entry gets created, but, hmm, no description.  There is one change to make to the controller.  To figure this out, we have to understand what happens when you click the "Create Forum" button.  In HTML, when a form is submitted, a POST request is sent from the browser to the server.  The body of the post request contains the data from the form.  Stop the server for the moment.  Then, in your terminal, type:
 ```
@@ -149,7 +159,9 @@ We'll learn more about validations in a later lesson.  We need to change the for
 ```
 Then try it out.  
 
-Next, let's do some experiments to understand how everything works. We also want to see some sample error messages so that we learn how to debug problems.  Stop the server.  Edit the config/routes.rb.  Comment out the line resources :users.  Add the following lines:
+Next, let's do some experiments to understand how everything works. We also want to see some sample error messages so that we learn how to debug problems.  
+
+Stop the server.  Edit the config/routes.rb.  Comment out the line resources :users.  Add the following lines:
 ```
   get '/users', to: 'users#index', as: 'users'
   get '/users/new', to: 'users#new', as: 'new_user'
@@ -159,13 +171,13 @@ Next, let's do some experiments to understand how everything works. We also want
   patch '/users/:id', to: 'users#update'
   delete '/users/:id', to: 'users#delete'
 ```
-Then do bin/rails routes.  You'll see you have all the same routes as before, except the PUT route for users, as that one is not needed.  These all consist of a verb, a path, and a to: which is the method to invoke in the controller.  Note the ```:id``` in some of these routes.  That's a route parameter.  It specifies which user you want to show or edit or update or delete.  If a request comes in for a GET on /users/17, that means that the user with an id of 17 is to be shown.  You have to put the route for /users/new before the route for /users/:id, or else Rails would attempt to show the user with an id of "new".  This is because Rails attempts to match routes in the order they appear.  OK, so how about the as: part?  This creates a method name with that prefix.  You add ```_path``` to the end of that to have the matching URL path.  Within controllers and views, you can refer to users_path, user_path, edit_user_path, and so on.
+Then do bin/rails routes.  You'll see you have all the same routes as before, except the PUT route for users, as that one is not needed.  These all consist of a verb, a path, and a to: which is the method to invoke in the controller.  Note the ```:id``` in some of these routes.  That's a route parameter.  It specifies which user you want to show or edit or update or delete.  If a request comes in for a GET on /users/17, that means that the user with an id of 17 is to be shown.  You have to put the route for /users/new before the route for /users/:id, or else Rails would attempt to show the user with an id of "new".  This is because Rails attempts to match routes in the order they appear.  OK, so how about the as: part?  This creates a method name with that prefix.  You add ```_path``` to the end of that to have the matching URL path, which is then available to you as a variable.  Within controllers and views, you can refer to the variables users_path, user_path, edit_user_path, and so on.
 
-Now for some experiments.  Restart the server.  What happens if you comment out the route for get /rails?  Do that and try to go to http://localhost:3000/users.  Of course, you get an error.  By the way, in production, the user would not see this error screen.  They'd just get a 404 message.  You see it because Rails is running in development mode.  Take note of the error message that you see, so you know what to fix if this happens.  Also, take a look at the server log.  The log and the error message often point to the cause of problems.  
+Now for some experiments.  Restart the server.  What happens if you comment out the route for get /rails?  Do that and try to go to http://localhost:3000/users.  Of course, you get an error.  By the way, in production, the user would not see this error screen.  They'd just get a 404 message.  You see the error message because Rails is running in development mode.  Take note of the error message that you see, so you know what to fix if this happens.  Also, take a look at the server log.  The log and the error message often point to the cause of problems.  
 
 Next, uncomment that route, and edit the users controller.  Comment out the index method.  Then try refreshing the browser.  Again you get an error, in this case in the view.  Because the controller does not have an index method, the index method of the parent class is run, and it doesn't set the value of @users, so that is nil when the view is rendered.  The failing line from the view is shown in the error message, and that tells you what the problem is, but in this case, it doesn't point to the cause of the problem, which is in the controllere.  Remember about Ruby classes? ForumsController is a class, and @users is an instance variable set by the index method.  All instance variables in the controller can be used in the views.  
 
-Uncomment the index method, and put a syntax error into it, a line that says baloney or something like that.  Again you get an error, and it shows you exactly the line that is failing.  OK, take that line back out.  Now, rename app/views/users/index.html.erb to index.html.erb.not.  Then once again, try http://localhost:3000/users. Again an error, but a different one.  Each of these error messages is pretty descriptive, in some cases even pointing to the failing line.  Rename the file back to index.html.erb.  Then refresh your browser window to make sure all is working again.
+Uncomment the index method, and put a syntax error into it, a line that says ```baloney``` or something like that.  Again you get an error, and it shows you exactly the line that is failing.  OK, take that line back out.  Now, rename app/views/users/index.html.erb to index.html.erb.not.  Then once again, try http://localhost:3000/users. Again an error, but a different one.  Each of these error messages is pretty descriptive, in some cases even pointing to the failing line.  Rename the file back to index.html.erb.  Then refresh your browser window to make sure all is working again.
 
 So now, for some user, click on "Show this User".  Then look at the terminal where the Rails server is running.  You will see a GET for "/users/x" where x is the id of that user.  You will also see the parameters hash that is passed to the show method, and is accessible as "params" within that method.  Edit the user, and then do an update.  Again, look at the server log.  You will see a PATCH for "/users/x" and then parameters hash, which include the id and the body of the PATCH request.
 
@@ -173,7 +185,7 @@ Take a look at the top of users_controller.rb.  You'll see this line:
 ```
   before_action :set_user, only: %i[ show edit update destroy ]
 ```
-The before_action sets up a method to be called before certain actions, in this case show, edit, update, and destroy.  It calls the method set_user, which is a private method near the bottom of the file.  The set_user method sets the value of @user, based on the id that was passed in the params.  This way, you can have the value of @user set in only one place in the code, instead of having to do it for each of show, edit, update, and destroy.  This is not done for the index or new or create actions, because when these are called, there is no id for a user record.
+The before_action sets up a method to be called before certain actions, in this case show, edit, update, and destroy.  It calls the method set_user, which is a private method near the bottom of the file.  The set_user method sets the value of the instance variable @user, based on the id that was passed in the params.  This way, you can have the value of @user set in only one place in the code, instead of having to do it for each of show, edit, update, and destroy.  This is not done for the index or new or create actions, because when these are called, there is no id for a user record.
 
 Is it becoming clearer how Rails works?
 
@@ -191,20 +203,22 @@ def logoff
   redirect_to users_path, notice: "You have logged off."
 end
 ```
-Do not put these methods in the private section.  You can't put action methods there.  Also, add logon to the list of methods in the before_action line for set_user, so that @user gets set.  Ok, pretty simple so far.  We have to either do a render or a redirect in each action, otherwise the user would just wait and not get a response.  Because we are doing a redirect, we don't need a view.  Now we need to add these routes to config/routes.rb:
+Do not put these methods in the private section.  You can't put action methods there.  Also, add logon to the list of methods in the before_action line for set_user, so that @user gets set.  Ok, pretty simple so far.  
+
+Note somthing about controller actions: We have to do either a render or a redirect in each action.  Otherwise the user would just wait and not get a response.  Because we are doing a redirect, we don't need to render a view.  Actually, you can't do both a render and a redirect for the same HTTP request.  You have to do exactly one of these.  Now we need to add these routes to config/routes.rb:
 ```
   post '/users/:id/logon', to: 'users#logon', as: 'user_logon'
   delete '/users/logoff', to: 'users#logoff', as: 'user_logoff'
 ```
-We could do these operations with a GET -- but that's a bad practice.  You do not want to change state on the server with a GET.  It leads to security vulnerabilities.  Also, please note.  This delete route has to be *before* the other one.  Otherwise, the other route would be matched and the code would attempt to delete a user with id = logoff.
+We could do these operations with a GET -- but that's a bad practice.  You do not want to change state on the server with a GET.  It leads to security vulnerabilities.  Also, please note: This delete route has to be *before* the other delete route, the one that actually deletes the user.  Otherwise, the other route would be matched and the code would attempt to delete a user with id = logoff.
 
-We need a way to invoke these routes from the pages.  We need to pick which user to logon as.  We'll add a button to app/views/users/show.html.erb.  Add the following line just above the line for the destroy button:
+We need a way to invoke these routes from the pages.  We also need to be able pick which user that we want to logon as.  We'll add a button to app/views/users/show.html.erb.  Add the following line just above the line for the destroy button:
 ```
   <%= button_to "Logon as this user", user_logon_path(@user), method: :post %>
 ```
-A couple points to notice: First, we can use user_logon_path, because we put ```as: user_logon``` into the route.  And the route takes a post.  But user_logon_path has a parameter, so we have to pass @user when we use it.  But, what in the world does button_to actually do? You can find out by going into developer tools to display the elements of the show page.  You'll see that button_to actually creates a complete form masquerading as a button.  It has a hidden field with an authenticity_token, which is for security purposes, and another hidden field with a _method, so that the action (which really is always a POST), can be handled as a POST or a PATCH or a DELETE.
+A couple points to notice: First, we can use user_logon_path, because we put ```as: user_logon``` into the route.  And the route takes a post.  But user_logon_path has a parameter, so we have to pass @user when we use it.  But, what in the world does button_to actually do? You can find out by going into developer tools to display the elements of the show page.  You'll see that button_to actually creates a complete form masquerading as a button.  It has a hidden field with an authenticity_token, which token is for security purposes, and another hidden field with a _method, so that the action (which really is always a POST), can be handled as a POST or a PATCH or a DELETE.
 
-Now, one for logoff.  We'll add that, for the moment, to the user index view.  Now it only makes sense to log off if no one is logged on.  So we need to change the controller to pass this information.  Add the following line to the index method of the user controller:
+Now, we need to add a button for for logoff.  We'll add that, for the moment, to the user index view.  It only makes sense to log off if someone is logged on.  We need to change the controller to pass this information.  Add the following line to the index method of the user controller:
 ```
     @current_user = session[:current_user]
 ```
@@ -220,7 +234,7 @@ Then, just below the link_to line for "New User", add these lines:
   <% end %>
   </div>
 ```
-Note that you can't do @current_user.name.  What is stored is just a hash, not the actual User instance.  If you open your browser developer tools, under the application tab, you'll see the cookie that is set to store session information.  You can't read it, though, because it's encrypted.
+If you try to do @current_user.name, you get an error.  What is stored in @currrent_user is just a hash, not the actual User instance, so that you can't invoke methods of the User object such as @current_user.name.  So we have to get the value with ```@current_user["name"]```.  If you open your browser developer tools, under the application tab, you'll see the cookie that is set to store session information.  You can't read it, though, because it's encrypted.  All that is being stored right now is the current user.
 
 ## What we'll do Next
 
@@ -232,13 +246,15 @@ As usual, you add and commit the changes, in this case to the rails_basics branc
 
 # Lesson 7: Active Record Associations
 
-Associations associate the records from different tables.  We want a forum to have many posts, so there is a one-to-many association between forums and posts.  This is done by putting a pointer called a foreign key into the posts table. The foreign key in each post record is the id of the forum record in the forums table.  Of course, there can be many posts with the same foreign key.
+Apologies in advance: This is a *tough* lesson.  The code you need is below.  But, there is a lot of it, and you need not only to paste the code in correctly, you also need to *understand* what each line does.  Take your time with this lesson, and try to understand each part.  We'll schedule a catch up week to give you time to digest this information.
+
+Associations in a database associate the records from different tables.  We want a forum to have many posts, so there is a one-to-many association between forums and posts.  (Remember one-to-many associations from the SQL lessons?  That's what is being done here, but using the Active Record ORM.)  A one-to-many association is created by putting a pointer called a foreign key into the posts table. The foreign key in each post record is the id of the forum record in the forums table.  Of course, there can be many posts with the same foreign key.
 
 We also want to associate users with forums.  A user may subscribe to many forums, and a forum may have many users subscribed.  So, where do we put the foreign keys?  If we put one in the user record, that user could only subscribe to one forum.  If we put one in the forum record, that forum could only have one subscriber.  So, we use a separate table, called a join table, in which each record has two foreign keys, one for the user and one for the forum.  We'll call this table subscriptions.  We'll also put another column in, a numeric priority, so that the user can see the forums in the order of importance.  This is called a many-to-many-through association, because a user has many forums through subscriptions.
 
 We'll also have a one to many association between user and posts, so that we know who created the post and who can edit it.  This means that the posts table will have another column with foreign keys.
 
-Create a new branch called associations from the rails_basics branch.  This is where you'll put your work for this lesson. Important: There is quite a bit of work here!  It is easy to make a mistake that you can't find and that breaks what you've done so far.  So, after you get each step working, git add and commit your work.  That way, if something breaks, you can go back to the previous commit.
+Create a new branch called associations from the rails_basics branch.  This is where you'll put your work for this lesson. Important: There is quite a bit of work here!  It is easy to make a mistake that you can't find and that breaks what you've done so far.  **So, after you get each step working, git add and commit your work.**  That way, if something breaks, you can go back to the previous commit.
 
 ## Step 1: Some Adjustments to Appearance
 
@@ -308,7 +324,7 @@ This way, we always have navigation.  We also have an indication of who is logge
 
 ## Step 2: Creating the Models
 
-We aren't using scaffolding for this part.  We'll create first the models, then the routes, then the controllers, and the views.  A tip: When you do your own projects, give careful thought to the data model up front.  Fixing it afterwards is more difficult, because so many things depend on the model.
+We aren't using scaffolding for this part.  We have to do too much customization for scaffolding to be helpful, and in any case, you need to understand how to do each step.  We'll create first the models, then the routes, then the controllers, and the views.  A tip: When you do your own projects, give careful thought to the data model up front.  Fixing the data model afterwards is more difficult, because so many things depend on the model.
 
 Stop the server and enter the following:
 ```
@@ -316,7 +332,9 @@ bin/rails generate model post title:string content:text forum:references user:re
 bin/rails generate model subscription forum:references user:references priority:integer
 bin/rails db:migrate
 ```
-This sets up the tables as we want. The text datatype is for longer string input.  We also want to make additions to the models. Add the following:
+This sets up the tables as we want. The text datatype is for longer string input, for the content attribute. The references cause foreign keys to be added to the tables.  We create the post table to have two foreign keys: a user_id column, with the id of the user making the post, and a forum_id column, with the id of the forum for the post.  
+
+We also want to make additions to the models.  Remember the model file you looked at before?  There was nothing in it.  By adding lines to the model files, you create methods to interact with post, subscription, forum, and user objects. Add the following:
 ```
 # add in app/models/forum.rb (inside the class)
 has_many :posts
@@ -351,11 +369,11 @@ subscription.user
 subscription.forum.forum_name
 post.user.name
 ```
-As you can see, whenever you have an association between records in one table and those in another, you can traverse that association to get all the relevant data, using the additional methods added to the model.  We'll use these methods in the controllers.  You could play with them further now as needed to understand what they do.
+As you can see, whenever you have an association between records in one table and those in another, you can traverse that association to get all the relevant data, using the additional methods added to the model.  We'll use these methods in the controllers.  You could play with them further now, as much as you need to understand what they do.
 
 ## Step 3: Creating Routes and the Post Controller
 
-We need routes for the CRUD operations on these new models.  For subscriptions and posts, we want routes that convey which forum we are subscribing or posting to.  One quick way to do that is as follows.  Change the statement for forum routes in config/routes.rb as follows:
+We need routes for the CRUD operations on these new models.  (Remember CRUD: create, read, update, delete.)  For subscriptions and posts, we want routes that convey which forum we are subscribing or posting to.  One quick way to do that is as follows.  Change the statement for forum routes in config/routes.rb as follows:
 ```
   resources :forums do
     resources :posts, shallow: true, except: [:index]
@@ -371,7 +389,9 @@ Now we create the posts controller.  Type the following:
 ```
 bin/rails g controller posts create new edit show update destroy
 ```
-This step also creates views.  However, when we don't use the scaffold, as we'll see, the controller methods are empty, and the created views aren't useful, so there is more work todoy.  We'll start by editing the new posts controller.  You'll notice that all the methods are empty.  We'll implement a policy that unless a user is logged in, access to the forum is read-only, and also that a user can only update or delete their own posts.  We'll also set some instance variables we need.
+This step also creates views.  However, when we don't use the scaffold, as we'll see, the controller methods are empty -- you have to write the code yourself -- and the created views aren't useful, so there is more work todo.  We'll start by editing the new posts controller.  We'll implement a policy that unless a user is logged in, access to the forum is read-only, and also that a user can only update or delete their own posts.  We'll also set some instance variables we need.
+
+Note the use of percent notation below to create arrays.  Review percent notation from lesson 3 if you have forgotten.
 ```
 # at the top of the PostsController class
   before_action :check_logon, except: %w[show]
@@ -409,11 +429,13 @@ private
     params.require(:post).permit(:title,:content,:user_id)
   end
 ```
+Having copied all this in, pause for a minute.  Do you understand what each part does?  If not logged on,  a user can do the post operation only -- for all the others, the user gets redirectted back to the main forums screen, with an error message.  As we need to know which forum is associated with the post, a private method is used to set the @forum instance variable.  (The methods in the private section can't be invoked except from within the class.) If we are showing or editing or updating or deleting a post, we need to know which post, so the @post instance variable has to be set too.
+
 The controller methods for check_logon and check_access implement a security policy.  We could change the views so that various controls are disabled or hidden if the user is not logged in, or if that user is not authorized to change a post.  This would make the user interface more sensible, but it *would not suffice* to implement security!  It is very easy for someone to bypass the views by sending GET/POST/PUT/PATCH/DELETE methods directly to the controller.  Security must be implemented in the controller for security policies to hold.
 
 When doing a create or update, we use the post_params, and this provides the "strong parameters" security check.  We also have to add the id for the logged on user to the params, and make it permitted.  The forms to create or update an entry do not contain the user_id, but it is a required part of the post record.
 
-Ok, now we fill in the methods, one at a time.
+Ok, now we fill in the methods, one at a time.  Note that for some of them, nothing is needed.  Default behavior does what we want.
 ```
 def create
   @post = @forum.posts.new(post_params)  # we create a new post for the current forum
@@ -474,7 +496,7 @@ In show.html.erb, we need to display this same information plus the content and 
 ```
 If you have sharp eyes, you'll note that we repeated some stuff that is also in the partial.  We do this so we can get the button in the partial to be on the same line as the author and title.  We know which forum to return to, because of the method we added to the Post model. The _post partial is to be used only by the show view for the forum.
 
-We need another partial, a form for editing or creating a post, _form.html.erb.  It starts with error handling.  This doesn't do anything here.  No errors will occur when creating or updating a post, because we are not validating entries.  In the next lesson, we'll learn how to do validations by adding to the models.
+We need another partial, a form for editing or creating a post, _form.html.erb.  A partial for a form starts with error handling, in case a user attempts to create a post that does not conform to validation rules.  This error processing doesn't do anything yet.  No errors will occur when creating or updating a post, because we are not validating entries.  In the next lesson, we'll learn how to do validations by adding to the models.
 ```
 <%= form_with(model: post) do |form| %>
   <% if post.errors.any? %>
@@ -508,7 +530,7 @@ The content of the post is a text_area, because the user will need room to type 
 ```
 <h1>New post</h1>
 
-<%= render "form", post: @post%>
+<%= render "form", post: @post %>
 
 <br>
 
@@ -516,7 +538,7 @@ The content of the post is a text_area, because the user will need room to type 
   <%= link_to "Back to the forum", @forum %>
 </div>
 ```
-For the new operation, remember, we set the @forum instance variable.  edit.html.erb is similar:
+For the new operation, remember, we set the @forum instance variable.  THe edit.html.erb view is similar:
 ```
 <h1>Editing post</h1>
 
@@ -529,14 +551,16 @@ For the new operation, remember, we set the @forum instance variable.  edit.html
   <%= link_to "Back to the forum", @post.forum %>
 </div>
 ```
-For the edit operation, we do not set the @forum variable, because the route is shallow, and does not have that parameter.  But the post already exists in this case, and the forum is associated with the post, so the back link uses that value.  These are all the views we need for posts.  But we do need to show the list of post authors and titles in the context of the forum, and also to add a link to create a new post.  This is done by adding the following lines to app/views/forums/show.html.erb, right after the line that says render @forum:
+For the edit operation, we do not set the @forum variable, because the route is shallow, and does not have that parameter.  But the post already exists in this case, and the forum is associated with the post, so the back link uses @post.forum.  Wait -- where did that method, @post.forum, come from?  When you added the ```belongs_to :forum``` line in the post model, you told Active Record to add that method to the Post class.
+
+These are all the views we need for posts.  But we do need to show the list of post authors and titles in the context of the forum, and also to add a link to create a new post.  This is done by adding the following lines to app/views/forums/show.html.erb, right after the line that says render @forum:
 ```
 <%= render @forum.posts.order(updated_at: :desc) %>
 <%= link_to "Create a new post", new_forum_post_path(@forum) %>
 ```
 Note the use of the order method.  We want the newest posts to be on the top.  Active Record has many methods.  In fact, we could even specify exactly the SQL we want.  The reference for Active Record is [here.](https://www.rubydoc.info/gems/activerecord)
 
-Ok, let's try everything out.  We can display the forums, and for those that have posts, we can see those posts, display them, and edit or delete them, but these latter operations only work if a user is logged on and is the originator of the post.  So far so good.  Now try adding a post.  Ouch!  That's a strange error: "undefined method posts_path".  Ok, this is tricky, so pay attention.  Rails is organized to use convention over configuration.  This means that there are always default behaviors. *But sometimes the default behaviors are wrong, and this can be difficult to figure out.* Have a look again at the routes for posts.  (One way to do this is to go to http://localhost:3000/routes .  You get an error, but the error message shows all the routes.) The route for updating a post is a PATCH for post_path(post).  That much works.  But the one for creating a post is a POST for forum_posts_path(post.forum).  Rails defaults to posts_path for the create, and that doesn't work because the route is nested.  We have to override the URL used by the form.
+Ok, let's try everything out.  We can display the forums, and for those that have posts, we can see those posts, display them, and edit or delete them, but these latter operations only work if a user is logged on and is the originator of the post.  So far so good.  Now try adding a post.  Ouch!  That's a strange error: "undefined method posts_path".  Ok, this is tricky, so pay attention.  Rails is organized to use convention over configuration.  This means that there are always default behaviors. *But sometimes the default behaviors are wrong, and this can be difficult to figure out.* Have a look again at the routes for posts.  (One way to do this is to go to http://localhost:3000/routes .  You get an error message in your browser, but the error message shows all the routes.) You see that the route for updating a post is a PATCH for post_path(post).  That much would work -- if you could somehow get a post created, you could update it with the PATCH.  But the one for creating a post is a POST for forum_posts_path(post.forum).  Rails defaults to posts_path for the create, and that doesn't work because the route is nested.  We have to override the URL used by the form.
 
 If @post.id is nil, that means the form is doing a create.  If @post.id is not nil, it is doing an update.  So we need logic as follows:
 ```
@@ -557,7 +581,7 @@ Whew, that was quite a bit of work! As this is becoming a long lesson, we'll try
 ```
 bin/rails g scaffold subscription forum:references user:references priority:integer --skip-collision-check --skip-routes --no-migration
 ```
-We tell the generate scaffold command to skip some steps because we already have the model, migration, and routes we need.  For some reason, ```--skip-routes``` doesn't work, so you need to take ```resources :subscriptions``` out of the config/routes.rb.  We didn't generate a migration, so there is no need to do a db:migrate.
+We tell the generate scaffold command to skip some steps because we already have the model, migration, and routes we need.  For some reason, ```--skip-routes``` doesn't work, **so you need to take ```resources :subscriptions``` out of the config/routes.rb.**  We didn't generate a migration, so there is no need to do a db:migrate.
 
 Next, let's edit the subscriptions controller.  Subscriptions always belong to a user.  So, it doesn't make sense to do any subscription operations unless a user is logged on.  Also, for new and create operations, we need to know which forum the subscription is for.  So we need the following before_action statements and private methods.
 ```
@@ -581,21 +605,21 @@ def set_subscription
   @subscription = Subscription.find_by(id: params[:id], user_id: @user.id)
 end
 ```
-Note the change to set_subscription! This is authorization checking.  We do not want one user to be able to change or delete another user's subscriptions, so we make sure that the subscription is for the currently logged on user.
+Note the change to set_subscription!  We not only search on ```params[:id]```, but also on the ```@user.id```, and only return a value if BOTH of these SQL WHERE conditions match. This is authorization checking.  We do not want one user to be able to change or delete another user's subscriptions, so we make sure that the subscription is for the currently logged on user.
 
 Next we modify the methods one by one.  As you see below, there are only four changed lines.  However, one of them is, hmm, interesting.  What do we want to do when displaying the subscriptions?  Here the idea is that we render a list of forums to which the user has subscribed.  Not too bad.  However, we want to render them in ascending order of the priority of the subscription.  That's not so easy.  To do that, we need to join several tables: i.e. SQL! THere are two ways to do this.  One is to figure out Active Record semantics, and you end up with a statement like this:
 ```
   Forum.joins(:subscriptions).where(subscriptions: {user_id: @user.id}).order(:priority)
 ```
-As for myself, I don't like to puzzle through the Active Record documentation, so I like just to specify the SQL I want:
+One could instead specify the SQL that is wanted:
 ```
   Forum.find_by_sql("SELECT forums.* from forums JOIN subscriptions ON forums.id = forum_id WHERE user_id = $1 ORDER BY priority",[@user.id])
 ```
-SQL!  Back end programmers can't get away from it.  Here are our revised controller methods:
+However, dropping into SQL is considered a bad practice, if you can instead use the Active Record methods.  You'll note that the Active Record way of doing things is more compact.  SQL!  Back end programmers can't get away from it.  Here are our revised controller methods:
 ```
   # GET /subscriptions or /subscriptions.json
   def index
-   @forums = Forum.find_by_sql("SELECT forums.* from forums JOIN subscriptions ON forums.id = forum_id WHERE user_id = $1 ORDER BY priority",[@user.id])
+   @forums = Forum.joins(:subscriptions).where(subscriptions: {user_id: @user.id}).order(:priority)
   end
 
   # GET /subscriptions/1 or /subscriptions/1.json
@@ -699,6 +723,10 @@ Try each of the functions of the application to verify that everything works.
 ## Appearance and Human Factors
 
 The focus here has been on concepts and in particular on associations within Active Record.  When creating a real application, you must consider other things.  Frankly, this application is ugly.  Also, it doesn't have good human factors.  There are many cases where a user can try something and be told that it isn't allowed.  It would be better to hide such controls if the user is not logged in or not authorized.  Also, there is no validation of what is entered.  There is no exception handling, so that, for example, if you try to delete a forum with posts, you get an error message about a foreign key constraint. (Try this.) For a more serious project, one would do quite a bit of storyboarding to see what the appearance should be.
+
+## Other Types of Associations
+
+We have implemented a one-to-many association (a user has many subscriptions) and a many-to-many association (a user can subscribe to many forums, and many users can subscribe to a given forum).  This is really a many-to-many-through association, because the subscriptions table acts as a join table for users and forums, but the subscriptions table also has its own attributes, in this case the priority column.  Be aware that there are other kinds of associations enabled by Active Record, such as has_one associations and polymorphic associations.  So ... there's always more to learn.
 
 ## Submitting Your Work
 

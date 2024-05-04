@@ -508,6 +508,10 @@ The focus here has been on concepts and in particular on associations within Act
 
 We have implemented a one-to-many association (a user has many subscriptions) and a many-to-many association (a user can subscribe to many forums, and many users can subscribe to a given forum).  This is really a many-to-many-through association, because the subscriptions table acts as a join table for users and forums, but the subscriptions table also has its own attributes, in this case the priority column.  Be aware that there are other kinds of associations enabled by Active Record, such as has_one associations and polymorphic associations.  So ... there's always more to learn.
 
+## Checking for Understanding
+
+Again there are some questions to answer, in lesson7-questions-txt. You need to edit this file and put in the answers.  Feel free to discuss possible answers or confusion points on Slack.
+
 ## Submitting Your Work
 
 Pat yourself on the back, this was a big one. As usual, you add and commit your changes to the lesson7 branch, push that branch to github, create the pull request, and submit a link to the PR in your homework submission form.

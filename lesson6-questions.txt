@@ -1,0 +1,61 @@
+Questions for Lesson 6
+
+1. When you enable CRUD operations on a table in the database, you need to add four things
+to your Rails application.  When you generate a scaffold, all four are created.What are they?
+
+
+
+
+2. When you specify a route in config/routes.rb, you need to include certain information.  What
+must be included? In addition, you may specify an additional parameter to create a variable
+that describes the route.  How do you do that? What variable is created?
+
+
+
+3. What does the Rails db:migrate command do?
+
+
+
+4. What file do you look at to see the current database schema?
+
+
+5. What command shows the routes?
+
+
+6. How can you start the Rails console? How can you do CRUD operations from the console?
+
+
+7. What statements are in erb files that make them different from html files?  What are the
+two kinds of special statements, and how are they marked in the erb file? Where are they executed?
+
+
+8. Consider this statement: @forum = Forum.new().  Why is Forum capitalized?  Why is @forum not
+capitalized? Why is the @ used?
+
+
+
+9. Consider these statements:
+
+@forum = Forum.new(...)
+@forum =Forum.create(...)
+@forum.save(...)
+
+What is the difference between Forum.new() and Forum.create()?  Why can't you do Forum.save(...)?
+
+
+10. In the forums controller, you have a method called show:
+
+  def show
+  end
+
+This is an action method.  It is an action method for only one reason: There is a route
+that points to it.  But there's nothing in the method!  It will do the right things
+because the default behavior does what is needed.  What does the default behavior
+do?  How does it know which forum to show?  Whenever you have an action method, there
+is a hash called params that is passed to that method.  And, in this case, the params
+hash has a value, params[:id].  What is the value for this element of the hash? How
+did it get there?
+
+
+
+

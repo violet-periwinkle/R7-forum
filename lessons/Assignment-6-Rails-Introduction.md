@@ -2,11 +2,11 @@ We are going to create a Rails application from scratch, explaining all of the p
 
 Because the lesson is organized in this way, there is no separate materials page.  All the information is presented in the course of the assignment.
 
-To begin, fork [this repository.](https://github.com/Code-the-Dream-School/R7-forum.git)  Then clone your fork.  As usual, be sure not to clone into an existing git repository.  Then, cd to the directory where you cloned, and create a new branch called rails_basics.  This is where you will do your work. Then do:
+To begin, fork [this repository.](https://github.com/Code-the-Dream-School/R7-forum.git)  Then clone your fork.  As usual, be sure not to clone into an existing git repository.  Then, cd to the directory where you cloned, and create a new branch called lesson6.  This is where you will do your work. Then do:
 ```
 bin/bundle install
 ```
-This is necessary so that you install all the gems needed for this application.
+This is necessary so that you install all the gems needed for this application.  You may get a message that the version of bundler doesn't match the version in Gemfile.lock.  You can ignore this.
 
 Before you go further, have a look at the files and directory tree comprising this repository.  As you can see, there are a heap and a pile of files.  It will take some time to understand what each of these is for.  You will do most of your work in the app directory, but you also will make changes to the config and db folders.
 
@@ -108,7 +108,14 @@ You can take that div back out, as it was just for experimentation.  We need to 
 ```
     <%= render forum %>
 ```
-This is loading a partial.  A view partial is a view component that is used in several views, in this case the index and show views.  The partial that is being rendered is app/views/forums/_forum.html.erb.  You only have to specify "forum", not the full name of the partial.  So edit that file.  There you see the problem.  There is a paragraph for the title, but nothing for the description.  So, duplicate the paragraph for the title. Then, in the duplicated part, change "Forum name" to "Forum description, and forum.forum_name to forum.description.  Save the file and refresh your browser. Now you see the descriptions.  But, if you click on "new forum" you only can enter the title.  You need to edit another partial.  You can see in the console of the Rails server that it is forums/_form.html.erb.  This partial is used by both edit and new.
+This is loading a partial.  A view partial is a view component that is used in several views, in this case the index and show views.  The partial that is being rendered is app/views/forums/_forum.html.erb.  You only have to specify "forum", not the full name of the partial.  So edit that file.  There you see the problem:
+```
+  <p>
+    <strong>Forum name:</strong>
+    <%= forum.forum_name %>
+  </p>
+```
+There is a paragraph for the forum_name attribute, but nothing for the description attribute.  So, duplicate the paragraph above. Then, in the duplicated part, change `Forum name` to `Forum description`, and `forum.forum_name` to `forum.description`.  Save the file and refresh your browser. Now you see the descriptions.  But, if you click on "new forum" you only can enter the title.  You need to edit another partial.  You can see in the console log of the Rails server that it is forums/_form.html.erb.  This partial is used by both edit and new.
 
 When you edit the partial, you see a form_with statement.  This is a helper method for use with erb files.  What it generates is a normal HTML form, with a few hidden fields to facilitate Rails processing.  On the next lines, you see some stuff that has to do with error reporting.  The section we are interested in is below that.  You need to duplicate the div that currently handles input for the forum_name.  Then change the new section as needed to handle the description.  Experiment so that you can see how this is done.  There are several additional helper methods used: form.label and form.text_field.  You can find the Rails form helpers documented [here.](https://guides.rubyonrails.org/form_helpers.html)  Verify that when you click on "new forum" you get a correct form, with a description field.  Check it out with your browser developer tools.
 
@@ -129,7 +136,7 @@ Now forum_params is a private method near the bottom of the class.  It looks lik
       params.require(:forum).permit(:forum_name)
     end
 ```
-With each method in the controller, you get a params hash, which contains, in this case, the contents of the body of the POST request coming from the browser.  Rails has a security protection here.  You can't create an Active Record entry unless you flag that the given attribute is trusted.  Here we trust :forum_name only.  So, we need to change that to ```permit(:forum_name, :description)```.  Make that change, start the server again, and then try creating a forum with a description.  Now it works.  You can also edit a forum to change the description.  (By the way, you don't usually have to restart the server after a code change.  I find that if you change the routes or any of the models, you may need to restart the server.  Oh, and another shortcut: You can type just bin/rails s or c or g for the bin/rails server, console, and generator commands.)
+With each method in the controller, you get a params hash, which contains, in this case, the contents of the body of the POST request coming from the browser.  Rails has a security protection here.  You can't create an Active Record entry unless you flag (with the permit method) that the given attribute is trusted.  This is to block hackers from adding parameters you don't want.  Here we trust :forum_name only.  So, we need to change that to ```permit(:forum_name, :description)```.  Make that change, start the server again, and then try creating a forum with a description.  Now it works.  You can also edit a forum to change the description.  (By the way, you don't usually have to restart the server after a code change.  I find that if you change the routes or any of the models, you may need to restart the server.  Oh, and another shortcut: You can type just bin/rails s or c or g for the bin/rails server, console, and generator commands.)
 
 ## Step 3: The User Model
 
@@ -157,7 +164,7 @@ Then try it out.
 
 Next, let's do some experiments to understand how everything works. We also want to see some sample error messages so that we learn how to debug problems.  
 
-Stop the server.  Edit the config/routes.rb.  Comment out the line resources :users.  Add the following lines:
+Stop the server.  Edit the config/routes.rb.  Comment out the line that says `resources :users`.  Add, in its place, the following lines:
 ```
   get '/users', to: 'users#index', as: 'users'
   get '/users/new', to: 'users#new', as: 'new_user'
@@ -167,7 +174,7 @@ Stop the server.  Edit the config/routes.rb.  Comment out the line resources :us
   patch '/users/:id', to: 'users#update'
   delete '/users/:id', to: 'users#delete'
 ```
-Then do bin/rails routes.  You'll see you have all the same routes as before, except the PUT route for users, as that one is not needed.  These all consist of a verb, a path, and a to: which is the method to invoke in the controller.  Note the ```:id``` in some of these routes.  That's a route parameter.  It specifies which user you want to show or edit or update or delete.  If a request comes in for a GET on /users/17, that means that the user with an id of 17 is to be shown.  You have to put the route for /users/new before the route for /users/:id, or else Rails would attempt to show the user with an id of "new".  This is because Rails attempts to match routes in the order they appear.  OK, so how about the as: part?  This creates a method name with that prefix.  You add ```_path``` to the end of that to have the matching URL path, which is then available to you as a variable.  Within controllers and views, you can refer to the variables users_path, user_path, edit_user_path, and so on.
+Then do bin/rails routes.  You'll see you have all the same routes as before, except the PUT route for users, as that one is not needed.  These all consist of a verb, a path, and a to: which is the method to invoke in the controller.  Note the ```:id``` in some of these routes.  That's a route parameter.  It specifies which user you want to show or edit or update or delete.  If a request comes in for a GET on /users/17, that means that the user with an id of 17 is to be shown.  You have to put the route for /users/new before the route for /users/:id, or else Rails would attempt to show the user with an id of "new".  This is because Rails attempts to match routes in the order they appear.  OK, so how about the `as:` part?  This creates a method name with that prefix.  You add ```_path``` to the end of that to have the matching URL path, which is then available to you as a variable.  Within controllers and views, you can refer to the variables users_path, user_path, edit_user_path, and so on.  You don't have the `as:` on each line, because you don't need it.  For the create, you use the same path as for the `get /users`, except that the create is a post instead of a get.
 
 Now for some experiments.  Restart the server.  What happens if you comment out the route for get /rails?  Do that and try to go to http://localhost:3000/users.  Of course, you get an error.  By the way, in production, the user would not see this error screen.  They'd just get a 404 message.  You see the error message because Rails is running in development mode.  Take note of the error message that you see, so you know what to fix if this happens.  Also, take a look at the server log.  The log and the error message often point to the cause of problems.  
 
@@ -190,7 +197,7 @@ Is it becoming clearer how Rails works?
 We want to simulate a logon, so that we can associate specific forums and posts with a user.  So, how? In the general case, we'd use a gem called Devise.  But that's too complicated for now. We'll do something simpler, without any passwords.  Rails can store information in a session.  This is kept in a cookie that the server sets and the browser keeps.  Add the following methods to the users controller:
 ```
 def logon
-  session[:current_user] = @user
+  session[:current_user] = @user.id
   redirect_to users_path, notice: "Welcome #{@user.name}. You are logged in."
 end
 
@@ -199,9 +206,11 @@ def logoff
   redirect_to users_path, notice: "You have logged off."
 end
 ```
-Do not put these methods in the private section.  You can't put action methods there.  Also, add logon to the list of methods in the before_action line for set_user, so that @user gets set.  Ok, pretty simple so far.  
+Do not put these methods in the private section.  You can't put action methods there.  Also, add logon to the list of methods in the before_action line for set_user, so that @user gets set.  You also need to change the 'before_action' at the top of the file to add the `logon` action, so that you know which user is being logged on.
 
-Note somthing about controller actions: We have to do either a render or a redirect in each action.  Otherwise the user would just wait and not get a response.  Because we are doing a redirect, we don't need to render a view.  Actually, you can't do both a render and a redirect for the same HTTP request.  You have to do exactly one of these.  Now we need to add these routes to config/routes.rb:
+Ok, pretty simple so far.  
+
+Note somthing about controller actions: We have to do either a render or a redirect in each action.  Otherwise the user, in their browser session, would just wait and not get a response.  Because we are doing a redirect, we don't need to render a view.  Actually, you can't do both a render and a redirect for the same HTTP request.  You have to do exactly one of these.  Now we need to add these routes to config/routes.rb:
 ```
   post '/users/:id/logon', to: 'users#logon', as: 'user_logon'
   delete '/users/logoff', to: 'users#logoff', as: 'user_logoff'
@@ -212,30 +221,39 @@ We need a way to invoke these routes from the pages.  We also need to be able pi
 ```
   <%= button_to "Logon as this user", user_logon_path(@user), method: :post %>
 ```
-A couple points to notice: First, we can use user_logon_path, because we put ```as: user_logon``` into the route.  And the route takes a post.  But user_logon_path has a parameter, so we have to pass @user when we use it.  But, what in the world does button_to actually do? You can find out by going into developer tools to display the elements of the show page.  You'll see that button_to actually creates a complete form masquerading as a button.  It has a hidden field with an authenticity_token, which token is for security purposes, and another hidden field with a _method, so that the action (which really is always a POST), can be handled as a POST or a PATCH or a DELETE.
+A couple points to notice: First, we can use user_logon_path, because we put ```as: user_logon``` into the route.  And the route takes a post.  But user_logon_path has a parameter, so we have to pass @user when we use it.  But, what in the world does button_to actually do? You can find out by going into developer tools in your browser to display the elements of the show page.  You'll see that button_to actually creates a complete form masquerading as a button.  It has a hidden field with an authenticity_token, which token is for security purposes, and another hidden field with a _method, so that the action (which really is always a POST), can be handled as a POST or a PATCH or a DELETE.
 
-Now, we need to add a button for for logoff.  We'll add that, for the moment, to the user index view.  It only makes sense to log off if someone is logged on.  We need to change the controller to pass this information.  Add the following line to the index method of the user controller:
+Now, we need to add a button for for logoff.   But wait! It only makes sense to have a button for logoff if someone is logged on.  We need to change the controller to pass information about the logged on user to the view.  Add the following line to the index method of the user controller:
+``` if (session[:current_user])
+      @current_user = User.find(session[:current_user])
+    else
+      @current_user = nil
+    end
 ```
-    @current_user = session[:current_user]
-```
-Then, just below the link_to line for "New User", add these lines:
+The view has access to all of the controller's instance variables, so now one can reference `@current_user` in the view.  Possibly no user is logged in, and in that case @current_user would be set to nil by the line above.
+
+We'll add the logoff button, for the moment, to the `app\views\user\user\index.html.erb`.  Just below the link_to line for "New User", add these lines:
 ```
 <%= link_to "New user", new_user_path %>
 <div>
   <% if @current_user %>
-  <%= "#{@current_user["name"]} is logged on." %>
-  <%= button_to "Log Off", user_logoff_path, method: :delete %>
+    <%= "#{@current_user.name} is logged on." %>
+    <%= button_to "Log Off", user_logoff_path, method: :delete %>
   <% else %>
-  No one is logged in.
+    No one is logged in.
   <% end %>
   </div>
 ```
-If you try to do @current_user.name, you get an error.  What is stored in @currrent_user is just a hash, not the actual User instance, so that you can't invoke methods of the User object such as @current_user.name.  So we have to get the value with ```@current_user["name"]```.  If you open your browser developer tools, under the application tab, you'll see the cookie that is set to store session information.  You can't read it, though, because it's encrypted.  All that is being stored right now is the current user.
+If you open your browser developer tools, under the application tab, you'll see the cookie that is set to store session information.  This is where the id of the current user, if any is logged in.  You can't read the cookie, though, because it's encrypted.  Why is this stored in a cookie? Well, if we store it in an instance variable, it's not available with the next request, because the instance of the user controller class only lasts for one instance.  While the instance of controller class doesn't last, the controller class itself is persistent, though.  So we could store the user id in a class variable or global.  But this would be a bad idea!  If you have several users accessing the application from different browsers, they would have the same user id, and you don't want that.  That's why the cookie is used.
 
 ## What we'll do Next
 
 We have created a basic application (with a lot of help from the  generated scaffolds).  We added our own routes for logon and logoff.  We have two models, Forum and Post.  But, hmm, we have forums with no way to post.  We want to be able to add posts to a forum, and those posts should belong to a particular user.  We also want a way for a user to be able to subscribe to forums.  In the next lesson, we'll create two more models, one for posts, and another for subscriptions.  These will involve associations: a post is associated both with a forum and with a user, and so is a subscription.  Users are associated with various forums through their subscriptions.  So the data model is is more complicated, and we can't just use scaffolds.
 
+## Check for Understanding
+
+This assignment is pretty much cut and paste. You need to check to see if you understand what was done.  So, edit lesson6-questions.txt.  There are a series of questions there.  Put in your answers, and be prepared to discuss them with your mentors.
+
 ## Submitting Your Work
 
-As usual, you add and commit the changes, in this case to the rails_basics branch, and then push that branch to github.  Then create a pull request and submit a link to the pull request in the homework submission form.
+As usual, you add and commit the changes, in this case to the lesson6 branch, and then push that branch to github.  Then create a pull request and submit a link to the pull request in the homework submission form.

@@ -70,7 +70,7 @@ bin/rails db:migrate
 As we generated a new migration, we had to do the migrate.  If you check db/schema.rb, you see that the description column has been added to the forums table.
 
 We can now use the Rails console to add entries to the database without starting the server.  The Rails console is a very important tool.  You can do all the operations that you can do in the IRB environment, such as calling functions and displaying the value of variables, but you can also use Rails classes, including the Active Record Model classes that access the database.  Enter the following:
-```
+```ruby
 bin/rails console
 forum = Forum.new
 forum.forum_name = "Ruby"
@@ -126,11 +126,11 @@ bin/rails routes
 You'll see a bunch of routes, most used internally by Rails.  If you scroll to the top, you'll see the ones having to do with forums.  All of these routes are created by the ```resources :forums``` line in config\routes.rb.  Each route has a verb (GET, POST, PATCH, PUT, DELETE) and a URI pattern, which is the path part of the URL.  Then there is a column for the controller action.  There is also a prefix column, which we'll describe later.  When Rails gets a request from the browser, it tries to find a route that matches both the verb and the URI pattern.  In this case, the form sends a POST for /forums.  And the controller action is forums#create, which is the create method in app/controllers/forums_controller.rb.  So that's where we look next.
 
 In the create method, we see the line:
-```
+```ruby
     @forum = Forum.new(forum_params)
 ```
 Now forum_params is a private method near the bottom of the class.  It looks like this:
-```
+```ruby
     # Only allow a list of trusted parameters through.
     def forum_params
       params.require(:forum).permit(:forum_name)
@@ -146,7 +146,7 @@ bin/rails generate scaffold user name:string skill_level:string
 bin/rails db:migrate
 ```
 We could start the server and create some users, but the skill_level business could be used to store all sorts of things.  We just want the values beginner, intermediate, or expert.  How do we do this?  First, we edit the User model, and add the following line before the end statement:
-```
+```ruby
    validates :skill_level, inclusion: { in: %w(beginner intermediate expert) }
 ```
 We'll learn more about validations in a later lesson.  We need to change the form to match.  this is app/views/users/_form.html.erb.  We'll put in a radio button.  We look in the form helper documentation, and indeed there is a helper for radio buttons.  So change the div for skill_level to read as follows:
@@ -165,7 +165,7 @@ Then try it out.
 Next, let's do some experiments to understand how everything works. We also want to see some sample error messages so that we learn how to debug problems.  
 
 Stop the server.  Edit the config/routes.rb.  Comment out the line that says `resources :users`.  Add, in its place, the following lines:
-```
+```ruby
   get '/users', to: 'users#index', as: 'users'
   get '/users/new', to: 'users#new', as: 'new_user'
   get '/users/:id', to: 'users#show', as: 'user'
@@ -185,7 +185,7 @@ Uncomment the index method, and put a syntax error into it, a line that says ```
 So now, for some user, click on "Show this User".  Then look at the terminal where the Rails server is running.  You will see a GET for "/users/x" where x is the id of that user.  You will also see the parameters hash that is passed to the show method, and is accessible as "params" within that method.  Edit the user, and then do an update.  Again, look at the server log.  You will see a PATCH for "/users/x" and then parameters hash, which include the id and the body of the PATCH request.
 
 Take a look at the top of users_controller.rb.  You'll see this line:
-```
+```ruby
   before_action :set_user, only: %i[ show edit update destroy ]
 ```
 The before_action sets up a method to be called before certain actions, in this case show, edit, update, and destroy.  It calls the method set_user, which is a private method near the bottom of the file.  The set_user method sets the value of the instance variable @user, based on the id that was passed in the params.  This way, you can have the value of @user set in only one place in the code, instead of having to do it for each of show, edit, update, and destroy.  This is not done for the index or new or create actions, because when these are called, there is no id for a user record.
@@ -195,7 +195,7 @@ Is it becoming clearer how Rails works?
 ## Step 4: Simulating Logon
 
 We want to simulate a logon, so that we can associate specific forums and posts with a user.  So, how? In the general case, we'd use a gem called Devise.  But that's too complicated for now. We'll do something simpler, without any passwords.  Rails can store information in a session.  This is kept in a cookie that the server sets and the browser keeps.  Add the following methods to the users controller:
-```
+```ruby
 def logon
   session[:current_user] = @user.id
   redirect_to users_path, notice: "Welcome #{@user.name}. You are logged in."
@@ -211,7 +211,7 @@ Do not put these methods in the private section.  You can't put action methods t
 Ok, pretty simple so far.  
 
 Note somthing about controller actions: We have to do either a render or a redirect in each action.  Otherwise the user, in their browser session, would just wait and not get a response.  Because we are doing a redirect, we don't need to render a view.  Actually, you can't do both a render and a redirect for the same HTTP request.  You have to do exactly one of these.  Now we need to add these routes to config/routes.rb:
-```
+```ruby
   post '/users/:id/logon', to: 'users#logon', as: 'user_logon'
   delete '/users/logoff', to: 'users#logoff', as: 'user_logoff'
 ```
@@ -224,7 +224,8 @@ We need a way to invoke these routes from the pages.  We also need to be able pi
 A couple points to notice: First, we can use user_logon_path, because we put ```as: user_logon``` into the route.  And the route takes a post.  But user_logon_path has a parameter, so we have to pass @user when we use it.  But, what in the world does button_to actually do? You can find out by going into developer tools in your browser to display the elements of the show page.  You'll see that button_to actually creates a complete form masquerading as a button.  It has a hidden field with an authenticity_token, which token is for security purposes, and another hidden field with a _method, so that the action (which really is always a POST), can be handled as a POST or a PATCH or a DELETE.
 
 Now, we need to add a button for for logoff.   But wait! It only makes sense to have a button for logoff if someone is logged on.  We need to change the controller to pass information about the logged on user to the view.  Add the following line to the index method of the user controller:
-``` if (session[:current_user])
+```ruby
+    if (session[:current_user])
       @current_user = User.find(session[:current_user])
     else
       @current_user = nil

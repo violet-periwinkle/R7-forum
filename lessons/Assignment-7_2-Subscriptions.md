@@ -9,7 +9,7 @@ bin/rails g scaffold subscription forum:references user:references priority:inte
 We tell the generate scaffold command to skip some steps because we already have the model, migration, and routes we need.  For some reason, ```--skip-routes``` doesn't work, **so you need to take ```resources :subscriptions``` out of the config/routes.rb.**  We didn't generate a migration, so there is no need to do a db:migrate.
 
 Next, let's edit the subscriptions controller.  Subscriptions always belong to a user.  So, it doesn't make sense to do any subscription operations unless a user is logged on.  Also, for new and create operations, we need to know which forum the subscription is for.  So we need the following before_action statements and private methods.
-```
+```ruby
 before_action :check_logon
 before_action :set_forum, only: %w[new create]
 
@@ -32,21 +32,21 @@ end
 Note the change to set_subscription!  We not only search on ```params[:id]```, but also on the ```@current_user.id```, and only return a value if BOTH of these SQL WHERE conditions match. This is authorization checking.  We do not want one user to be able to change or delete another user's subscriptions, so we make sure that the subscription is for the currently logged on user.
 
 Next we modify the methods one by one.  As you see below, there are only four changed lines.  However, one of them is, hmm, interesting.  What do we want to do when displaying the subscriptions?  Here the idea is that we render a list of forums to which the user has subscribed.  Not too bad.  However, we want to render them in ascending order of the priority of the subscription.  That's not so easy.  To do that, we need to join several tables: i.e. SQL! THere are two ways to do this.  One is to figure out Active Record semantics, and you end up with a statement like this:
-```
+```ruby
   Forum.joins(:subscriptions).where(subscriptions: {user_id: @user.id}).order(:priority)
 ```
 One could instead specify the SQL that is wanted:
-```
+```ruby
   Forum.find_by_sql("SELECT forums.* from forums JOIN subscriptions ON forums.id = forum_id WHERE user_id = $1 ORDER BY priority",[@user.id])
 ```
 However, dropping into SQL is considered a bad practice, if you can instead use the Active Record methods.  You'll note that the Active Record way of doing things is more compact.  SQL!  Back end programmers can't get away from it.
 
 By the way, if we didn't care about the priority order, we could just get the list of forums with:
-```
+```ruby
 @current_user.forums
 ```
 Here are our revised controller methods:
-```
+```ruby
   # GET /subscriptions or /subscriptions.json
   def index
    @forums = Forum.joins(:subscriptions).where(subscriptions: {user_id: @user.id}).order(:priority)
@@ -143,7 +143,7 @@ We instead add a Subscribe link to the index view for forums:
 <%= link_to "Subscribe", new_forum_subscription_path(forum) %>
 ```
 This line should be right after the "show this forum" link.  Now, there's one other thing we ought to check.  It does not make sense for a user to subscribe to a forum that they have already subscribed to.  So we add this check to the start of the new method in the subscriptions controller:
-```
+```ruby
     if @forum.subscriptions.where(user_id: @user.id).any?
       redirect_to forums_path, notice: "You are already subscribed to that forum."
     end

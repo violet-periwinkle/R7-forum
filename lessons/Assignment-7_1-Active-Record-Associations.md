@@ -12,13 +12,13 @@ Create a new branch called lesson7_1 from the lesson6 branch.  This is where you
 
 Once we add these new models and the controllers and routes to manage them, the application will get messy to navigate.  So we'll add a nav bar.  We'll also change the default page, so that it shows the forums view.
 Add this line to the top of the list of routes in config/routes.rb:
-```
+```ruby
   root 'forums#index'
 ```
 Then start the server and verify that http://localhost:3000 takes you straight to the forums page.
 
 For each of the controllers and views, we need to know whether there is a logged on user.  We want to do this in one place only.  So, change `app/controllers/application_controller.rb`.  This controller is the superclass of all the others, so that code here runs for every request.  Change it as follows:
-```
+```ruby
 class ApplicationController < ActionController::Base
   before_action :set_current_user
 
@@ -106,7 +106,7 @@ bin/rails db:migrate
 This sets up the tables as we want. The text datatype is for longer string input, for the content attribute. The references cause foreign keys to be added to the tables.  We create the post table to have two foreign keys: a user_id column, with the id of the user making the post, and a forum_id column, with the id of the forum for the post.  
 
 We also want to make additions to the models.  Remember the model file you looked at before?  There was nothing in it.  By adding lines to the model files, you create methods to interact with post, subscription, forum, and user objects. Add the following:
-```
+```ruby
 # add in app/models/forum.rb (inside the class)
 has_many :posts
 has_many :subscriptions
@@ -126,7 +126,7 @@ has_many :posts
 has_many :forums, through: :subscriptions
 ```
 None of these model entries affect the data in any way.  What they do is to give us access to *additional methods* to access data using the models.  We'll do that now.  Start the rails console, and then create entries as follows:
-```
+```ruby
 user = User.create(name: "Fred Smith", skill_level: "expert")
 forum = Forum.create(forum_name: "HTMLTips", description: "some HTML clever ideas")
 post = user.posts.create(forum: forum, title: "indentation", content: "I find that it is always helpful to indent correctly")
@@ -145,7 +145,7 @@ As you can see, whenever you have an association between records in one table an
 ## Step 3: Creating Routes and the Post Controller
 
 We need routes for the CRUD operations on these new models.  (Remember CRUD: create, read, update, delete.)  For subscriptions and posts, we want routes that convey which forum we are subscribing or posting to.  One quick way to do that is as follows.  Change the statement for forum routes in config/routes.rb as follows:
-```
+```ruby
   resources :forums do
     resources :posts, shallow: true, except: [:index]
     resources :subscriptions, shallow: true, except: [:index]
@@ -163,7 +163,7 @@ bin/rails g controller posts create new edit show update destroy
 This step also creates views.  However, when we don't use the scaffold, as we'll see, the controller methods are empty -- you have to write the code yourself -- and the created views aren't useful, so there is more work to do.  We'll start by editing the new posts controller.  We'll implement a policy that unless a user is logged in, access to the forum is read-only, and also that a user can only update or delete their own posts.  We'll also set some instance variables we need.
 
 Note the use of percent notation below to create arrays.  Review percent notation from lesson 3 if you have forgotten.
-```
+```ruby
 # at the top of the PostsController class
   before_action :check_logon, except: %w[show]
   before_action :set_forum, only: %w[create new]
@@ -207,7 +207,7 @@ The controller methods for check_logon and check_access implement a security pol
 When doing a create or update, we use the post_params, and this provides the "strong parameters" security check.  We also have to add the id for the logged on user to the params, and make it permitted.  The forms to create or update an entry do not contain the user_id, but it is a required part of the post record.
 
 Ok, now we fill in the methods, one at a time.  Note that for some of them, nothing is needed.  Default behavior does what we want.
-```
+```ruby
 def create
   @post = @forum.posts.new(post_params)  # we create a new post for the current forum
   @post.save

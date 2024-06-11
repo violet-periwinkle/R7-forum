@@ -18,7 +18,7 @@ This repository is to be used as the base for Rails lessons 6 and 7.  The lesson
 - Understand and use embedded Ruby in template files
 - Recognise/correct various Rails error conditions 
 
-## Learning Objectives for Lesson 7.1
+## Learning Objectives for Lesson 7.1 (week 7)
 
 - Build a simple Rails application, without scaffolding
 - Implement one to many and many to many associations
@@ -27,7 +27,7 @@ This repository is to be used as the base for Rails lessons 6 and 7.  The lesson
 - Understand adding association methods to models
 - Practice use of the Rails console for CRUD operations
 
-## Learning Objectives for Lesson 7.2
+## Learning Objectives for Lesson 7.2 (week 8)
 
 - More practice on building Rails application elements
 - Introduction to Rails default behavior and overrides

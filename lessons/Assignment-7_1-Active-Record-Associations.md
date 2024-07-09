@@ -35,7 +35,7 @@ end
 This same code is duplicated in the index method of `app\controllers\user.rb`.  You don't want to repeat yourself, so take it out of the there.  (By the way, the before_action in application_controller.rb is done before any of the before_action methods in the other controllers.)
 
 For the navbar, we'll do a little very crude styling. Don't pay much attention to this section! We'll do serious styling in a later lesson, so right now, just copy/paste. Add the following lines to app/assets/stylesheets/application.css:
-```
+```css
  .ul-bar {
    list-style-type: none;
    margin: 5;
@@ -64,7 +64,7 @@ For the navbar, we'll do a little very crude styling. Don't pay much attention t
 }
 ```
 And then add the following navigation bar.  We add this to the app/views/layouts/application.html.erb, so that it is always shown.  This should be added right above the yield statement:
-```
+```html
  <% if @current_user %>
   <%= "#{@current_user.name} is logged on." %>
   <% else %>
@@ -98,7 +98,7 @@ This way, we always have navigation.  We also have an indication of who is logge
 We aren't using scaffolding for this part.  We have to do too much customization for scaffolding to be helpful, and in any case, you need to understand how to do each step.  We'll create first the models, then the routes, then the controllers, and then the views.  A tip: When you do your own projects, give careful thought to the data model up front.  Fixing the data model afterwards is more difficult, because so many things depend on the model.
 
 Stop the server and enter the following:
-```
+```bash
 bin/rails generate model post title:string content:text forum:references user:references
 bin/rails generate model subscription forum:references user:references priority:integer
 bin/rails db:migrate
@@ -157,7 +157,7 @@ Then do ```bin/rails routes``` to see which routes you have created.  For posts,
 We did not want the index action for subscriptions to be nested, for the following reason: If a user asks for a list of subscriptions, they want all of their own subscriptions, not all the subscriptions to a particular forum.
 
 Now we create the posts controller.  Type the following:
-```
+```bash
 bin/rails g controller posts create new edit show update destroy
 ```
 This step also creates views.  However, when we don't use the scaffold, as we'll see, the controller methods are empty -- you have to write the code yourself -- and the created views aren't useful, so there is more work to do.  We'll start by editing the new posts controller.  We'll implement a policy that unless a user is logged in, access to the forum is read-only, and also that a user can only update or delete their own posts.  We'll also set some instance variables we need.
@@ -239,7 +239,7 @@ end
 ## Step 4: Posts Views
 
 Have a look at app/views/posts/show.html.erb.  Well, that's disappointing!  Nothing there but boilerplate. So, delete all of the files in this directory! We have to start over.  Let's see: In the context of a forum, we just want to see the author and title of the post.  We'd also want to see those things when displaying the post itself, and also the content of the post.  So, we'll start with a partial, _post.html.erb:
-```
+```html
 <div id="<%= dom_id post %>">
   <p><%= "From #{post.user.name}:" %>
     <%= post.title %>
@@ -248,7 +248,7 @@ Have a look at app/views/posts/show.html.erb.  Well, that's disappointing!  Noth
 </div>
 ```
 In show.html.erb, we need to display this same information plus the content and display the content, and add edit, delete, and back buttons:
-```
+```html
 <p style="color: green"><%= notice %></p>
 
  <p><%= "From #{@post.user.name}:" %>
@@ -268,7 +268,7 @@ In show.html.erb, we need to display this same information plus the content and 
 If you have sharp eyes, you'll note that we repeated some stuff that is also in the partial.  We do this so we can get the button in the partial to be on the same line as the author and title.  We know which forum to return to, because of the post.forum method we added to the Post model. The _post partial is to be used only by the show view for the forum.
 
 We need another partial, a form for editing or creating a post, _form.html.erb.  A partial for a form starts with error handling, in case a user attempts to create a post that does not conform to validation rules.  This error processing doesn't do anything yet.  No errors will occur when creating or updating a post, because we are not validating entries.  In a later lesson, we'll learn how to do validations by adding to the models.
-```
+```html
 <%= form_with(model: post) do |form| %>
   <% if post.errors.any? %>
     <div style="color: red">
@@ -298,7 +298,7 @@ We need another partial, a form for editing or creating a post, _form.html.erb. 
 <% end %>
 ```
 The content of the post is a text_area, because the user will need room to type a long post.  Next is the new.html.erb:
-```
+```html
 <h1>New post</h1>
 
 <%= render "form", post: @post %>

@@ -114,13 +114,13 @@ The use of the scaffold saved some work, but we're not done yet.  Let's look at 
 <%= form_with(model: subscription, url: url) do |form| %>
 ```
 We don't need input fields for forum_id or user_id, because those values come out of the context.  We can take those sections out -- but we should replace them with an indicator of the forum for the subscription:
-```
+```html
 <h2><%= "Subscription for forum #{subscription.forum.forum_name}." %></h2>
 ```
 Also for the priority number_field, we add the option ```in: 1..10``` so that the user can set a priority from 1 to 10.   That completes the work on the form. Next, in _subscription.html.erb, we make a change to display subscription.forum.forum_name instead of the forum_id, and we don't need to display the user_id so that part is taken out.
 
 We don't have to change the other forms except for index.html.erb.  We want this one to render the list of forums, as retrieved and ordered by the SQL, and we also want the user to be able to edit and delete the subscription for each.  As follows:
-```
+```html
 <h1>Subscriptions</h1>
 
 <div id="subscriptions">

@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   #resources :users
+  root 'forums#index'
   post '/users/:id/logon', to: 'users#logon', as: 'user_logon'
   delete '/users/logoff', to: 'users#logoff', as: 'user_logoff'
   get '/users', to: 'users#index', as: 'users'

@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: %i[ logon show edit update destroy ]
+  before_action only: %i[ logon show edit update destroy ]
 
   def logon
     session[:current_user] = @user.id

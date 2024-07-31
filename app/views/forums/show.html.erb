@@ -1,7 +1,8 @@
 <p style="color: green"><%= notice %></p>
 
 <%= render @forum %>
-
+<%= render @forum.posts.order(updated_at: :desc) %>
+<%= link_to "Create a new post", new_forum_post_path(@forum) %>
 <div>
   <%= link_to "Edit this forum", edit_forum_path(@forum) %> |
   <%= link_to "Back to forums", forums_path %>

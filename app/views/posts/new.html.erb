@@ -1,2 +1,9 @@
-<h1>Posts#new</h1>
-<p>Find me in app/views/posts/new.html.erb</p>
+<h1>New post</h1>
+
+<%= render "form", post: @post %>
+
+<br>
+
+<div>
+    <%= link_to "Back to the forum", @forum %>
+</div>

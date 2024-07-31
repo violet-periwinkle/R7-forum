@@ -26,7 +26,7 @@ bin/rails routes
 
 6. How can you start the Rails console? How can you do CRUD operations from the console?
 
-bin/rails server or bin/rails s. bin/rails console and then irb-like commands
+bin/rails console and then irb-like commands
 
 7. What statements are in erb files that make them different from html files?  What are the
 two kinds of special statements, and how are they marked in the erb file? Where are they executed?
@@ -61,7 +61,6 @@ is a hash called params that is passed to that method.  And, in this case, the p
 hash has a value, params[:id].  What is the value for this element of the hash? How
 did it get there?
 
-the show method sends a GET that includes the id of the requested forum in the params
-
-
+the set_forum method is called before the show method and sets the value of @forum.
+the show method goes to show.html.erb, which renders the forum currently assigned to the @forum variable. I don't know if "goes to" is the correct term. I think it's "resources :forums" that makes the route have an id in it but I'm losing track of what was in lesson 6 and what was in lesson 7. I think it said "get '/posts/:id', to: 'posts#show'" based on the other routes in routes.rb. This answer would be more concise if I wasn't rushing to keep up these couple weeks.
 

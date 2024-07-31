@@ -4,7 +4,7 @@ Questions for Lesson 7
 before some or all of the controller actions execute?  Where can you put that
 change so that it affects all controllers?
 
-
+before_action method, in application_controller.rb
 
 2. Consider the following statement:
 

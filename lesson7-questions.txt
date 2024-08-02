@@ -14,13 +14,13 @@ This creates several files, including two you need to know about.  What are they
 After you do this statement but before starting the rails server, you have to do another
 command.  What is that command?
 
-
+models/subscription.rb and a migration file. the necessary command is bin/rails db:migrate
 
 3. What table is created as a result of the migration described above? What are the column
 names in that table? What is the primary key? What are the foreign keys?  What does a 
 foreign key do?
 
-
+subscriptions table with columns forum, user, and priority. forum and user are foreign keys that refer to the forums and users table. the primary key is the automatically generated id column.
 
 4. You have the following lines in the Subscription model:
 
@@ -32,7 +32,7 @@ that if you have a @subscription (an instance of Subscription), you have a coupl
 used to refer to associated database methods.  What are those methods?  (Actually there are a few,
 but there are two in particular you should know.)
 
-
+@subscription.forum & @subcription.user
 
 5. You have the following lines in the User model.
 
@@ -43,7 +43,7 @@ has_many :forums, through: :subscriptions
 What are threee important methods that are available to instances of the user model because
 of these lines?
 
-
+@user.subcriptions, @user.posts, @user.forums
 
 6. Suppose that user is an instance of the User class. What kind of object is returned by
 user.subcriptions?  Hint: To find out, go into the Rails console for your application.
@@ -67,14 +67,15 @@ Try that last line.  You will see that it creates a subscription object, but tha
 object is not entirely empty.  Which attribute is set? Where does it get that
 value?
 
-
+the user_id is set because subscriptions was declared in relation to that user in "subscriptions = user.subscriptions"
 
 7. Suppose that user is an instance of User, and forum is an instance of Forum.  What
 Active Record Statement could you use to retrieve all the user's posts for that
 forum?  Hint: You need to have a where in your statement. Try this out in the console.
 You will see the SQL that is executed logged to the screen.  What is that SQL?
 
-
+user.posts.where(forum_id: forum)
+SELECT "posts".* FROM "posts" WHERE "posts"."user_id" = ? AND "posts"."forum_id" = ?  [["user_id", 1], ["forum_id", 6]]
 
 8. You have the following method in your posts controller:
 
@@ -87,19 +88,19 @@ You will see the SQL that is executed logged to the screen.  What is that SQL?
 There is a security exposure, a risk that a hacker could do damage.  What is that
 risk? What two things are done in your code to prevent the risk?
 
-
+check_logon and check_access make it so a user can only delete their own posts. 
 
 9. The routes for subscriptions are nested under the forum routes.  How does this
 change the routes?  What is the additional hash key and value that is passed in the
 params hash to the subscriptions controller as a result of this nesting? Which routes
 are unaffected by the nesting?
 
-
+subscriptions#create and #new both have /forums/:forum_id in the routes. the params might be forum_id: *a forum id number* but I intend to come back to this question once I get the subscriptions working this week
 
 
 10. Every action method must do exactly one of two things -- that is, each
 method may do all sorts of logic, but at the end, it has to do one of two
 things, depending on the outcome of the logic.  What are those two things?
 
-
+render or redirect
 

@@ -1,0 +1,22 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Users</h1>
+
+<div id="users">
+  <% @users.each do |user| %>
+    <%= render user %>
+    <p>
+      <%= link_to "Show this user", user %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "New user", new_user_path %>
+<div>
+  <% if @current_user %>
+    <%= "#{@current_user.name} is logged on." %>
+    <%= button_to "Log Off", user_logoff_path, method: :delete %>
+  <% else %>
+    No one is logged in.
+  <% end %>
+  </div>

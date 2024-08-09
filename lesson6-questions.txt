@@ -3,36 +3,40 @@ Questions for Lesson 6
 1. When you enable CRUD operations on a table in the database, you need to add four things
 to your Rails application.  When you generate a scaffold, all four are created.What are they?
 
-
+model, controller, routes, and views
 
 
 2. When you specify a route in config/routes.rb, you need to include certain information.  What
 must be included? In addition, you may specify an additional parameter to create a variable
 that describes the route.  How do you do that? What variable is created?
 
-
+a verb, a path, and a to. the additional parameter is as.
 
 3. What does the Rails db:migrate command do?
 
-
+it changes the database based on the migrate file
 
 4. What file do you look at to see the current database schema?
 
+schema.rb
 
 5. What command shows the routes?
 
+bin/rails routes
 
 6. How can you start the Rails console? How can you do CRUD operations from the console?
 
+bin/rails server or bin/rails s. bin/rails console and then irb-like commands
 
 7. What statements are in erb files that make them different from html files?  What are the
 two kinds of special statements, and how are they marked in the erb file? Where are they executed?
 
+embedded ruby code executed on the server. the browser is sent html. <% brackets don't generate output but ones beginning with <%= add content to the html
 
 8. Consider this statement: @forum = Forum.new().  Why is Forum capitalized?  Why is @forum not
 capitalized? Why is the @ used?
 
-
+Forum is capitalized because it's referring to the class itself and not an instance variable. without the @ it is a local variable and not usable by views.
 
 9. Consider these statements:
 
@@ -42,6 +46,7 @@ capitalized? Why is the @ used?
 
 What is the difference between Forum.new() and Forum.create()?  Why can't you do Forum.save(...)?
 
+Forum.create saves a new forum and returns it instead of just returning a new forum. calling .save on the class itself doesn't have an instance to save.
 
 10. In the forums controller, you have a method called show:
 
@@ -56,6 +61,7 @@ is a hash called params that is passed to that method.  And, in this case, the p
 hash has a value, params[:id].  What is the value for this element of the hash? How
 did it get there?
 
+the show method sends a GET that includes the id of the requested forum in the params
 
 
 

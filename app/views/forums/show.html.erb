@@ -1,0 +1,10 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @forum %>
+
+<div>
+  <%= link_to "Edit this forum", edit_forum_path(@forum) %> |
+  <%= link_to "Back to forums", forums_path %>
+
+  <%= button_to "Destroy this forum", @forum, method: :delete %>
+</div>

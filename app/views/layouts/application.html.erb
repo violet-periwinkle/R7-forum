@@ -11,6 +11,31 @@
   </head>
 
   <body>
+  <% if @current_user %>
+  <%= "#{@current_user.name} is logged on." %>
+  <% else %>
+  No one is logged on.
+  <% end %>
+    <ul class="ul-bar">
+      <li class="dropdown"><span>Forums</span>
+          <ul class="dropdown-content ul-bar">
+            <li><a href="/forums">All forums </a></li>
+            <li><a href="/forums/new">New forum </a></li>
+          </ul>
+      </li>
+      <li class="dropdown"><span>Users</span>
+          <ul class="dropdown-content ul-bar">
+            <li><a href="/users">All Users</a></li>
+            <li><a href="/users/new">New User</a></li>
+            <li><%= button_to "Log Off", user_logoff_path, method: :delete %></li>
+          </ul>
+      </li>              
+      <li class="dropdown"><span>Subscriptions</span>
+          <ul class="dropdown-content ul-bar">
+            <li><a href="/subscriptions">My subscriptions</a></li>
+          </ul>
+      </li>
+    </ul>
     <%= yield %>
   </body>
 </html>

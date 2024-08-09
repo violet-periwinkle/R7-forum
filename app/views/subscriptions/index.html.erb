@@ -1,0 +1,14 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Subscriptions</h1>
+
+<div id="subscriptions">
+  <% @forums.each do |forum| %>
+    <%= render partial: "forums/forum",  locals: {forum: forum} %>
+    <%= render forum.posts.order(updated_at: :desc)%>
+    <%= link_to "Create a new post", new_forum_post_path(forum) %>
+      <% subscription = Subscription.find_by(forum_id: forum.id, user_id: @current_user.id) %>
+      <%= link_to "Show this subscription", subscription_path(subscription) %>
+  <% end %>
+</div>
+
